@@ -44,7 +44,7 @@ class LicenceVehicle:
 
         self.shared_utils._debug_log(w_disc_extract)
         # w_licence_details = list(zip(self.shared_utils.driver_data_names ,w_disc_extract))
-        w_licence_details = [(key, value) for i, (key, value) in enumerate(zip(self.shared_utils.driver_data_names , w_disc_extract))]        
+        w_licence_details = [(key, value) for i, (key, value) in enumerate(zip(self.shared_utils.vehicle_data_names , w_disc_extract))]        
         w_licence_details_dict = dict(w_licence_details)
         return w_licence_details_dict
 
