@@ -1,3 +1,6 @@
 dbr==9.6.40.2
+packaging==24.1
+pillow==10.4.0
 pyasn1==0.6.1
+pytesseract==0.3.13
 rsa==4.9
