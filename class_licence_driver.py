@@ -6,7 +6,6 @@ import rsa
 class LicenceDriver:
     def __init__(self, p_images_location: str, p_debug_on: bool = False) -> None:
         self.images_location = p_images_location
-        self.debug_on        = p_debug_on
         self.image_full_path = None
         self.output_file     = "output/driver_licence.json"
         self.shared_utils    = SharedUtils(self.images_location,self.output_file,p_debug_on)
@@ -82,13 +81,15 @@ class LicenceDriver:
             list: licence details
         """
         w_byte_data = bytes(p_data)
+        self.shared_utils._debug_log(f"p_data: {p_data}")
+        self.shared_utils._debug_log(f"++++++++++++++")
 
         w_new_data = ""
         w_invalid_chr = ["\x01","\x02","x11&ª¡"]
         w_skip = 0
         w_can_start = False        
         w_disc_extract = []
-
+        self.shared_utils._debug_log(f"w_byte_data: {w_byte_data}")
         for i , chr_byte in enumerate(w_byte_data):
             if not w_can_start and chr_byte == 130: #data start from 130
                 w_can_start = True        
@@ -125,7 +126,7 @@ class LicenceDriver:
     
 
 
-    def read_driver_licence_barcode(self, p_image_name: str,  p_image_text: str, p_debug : bool = False) -> None:
+    def read_driver_licence_barcode(self, p_image_name: str,  p_image_text: str) -> None:
         """read licence barcode
 
         Args:
@@ -134,8 +135,6 @@ class LicenceDriver:
         Returns: 
             None
         """    
-        self.debug_on = p_debug
-
 
         self.image_full_path = f"{self.images_location}/{p_image_name}"
         self.shared_utils._debug_log("=================DRIVER LICENCE=================")        
@@ -147,41 +146,44 @@ class LicenceDriver:
         reader = BarcodeReader()    
         w_results = reader.decode_file(self.image_full_path )
         w_licence_details = None
+        self.shared_utils._debug_log(f"w_results: {w_results}")
 
-        if w_results != None and len(w_results) > 0:
+        if w_results and len(w_results) > 0:
             data = w_results[0].barcode_bytes
-            if w_results != None and len(w_results) > 0:
-                data = w_results[0].barcode_bytes
-                self.shared_utils._debug_log("****************")
-                if data == None or len(data) != 720:
-                    w_licence_details = None
-                else:    
-                    w_decrypted = self._decrypt_data(data)
+            self.shared_utils._debug_log(f"len(data): {len(data)}")            
+            if data and len(data) == 720:     #use this
+            # if data: #remove this
+                w_decrypted = self._decrypt_data(data)
 
-                    w_licence_details = self._extract_licence_details(w_decrypted)
-        # print(f"Licence:: {w_licence_details}")
+                w_licence_details = self._extract_licence_details(w_decrypted)
         self.shared_utils._write_to_file(p_image_name, w_licence_details)       
        
     
 
 if __name__ == "__main__":
+
+    #UNIT TEST ONLY.. to run full program run main.py    
+    
     w_debug      = False    
     W_IMAGES_DIR = "images"      
-  
+    
     from os import listdir, remove
     from os import listdir
     from class_image_processing import ImageProcessing
     image_process   = ImageProcessing()
+
     
     driver_licence = LicenceDriver(p_images_location = W_IMAGES_DIR, p_debug_on = w_debug)
 
     w_dir_items = listdir(W_IMAGES_DIR)    
     for image_item in w_dir_items:        
         w_image_full_path : str = f"{W_IMAGES_DIR}/{image_item}"
-        w_image_text = image_process.get_image_text(p_image_with_path = w_image_full_path)
+        w_is_driver_licence, w_image_text = image_process.get_image_text(p_image_with_path = w_image_full_path, 
+                                                                         p_licence_keywords=driver_licence.shared_utils.driver_licence_keywords)
+        if driver_licence.shared_utils.debug_on:
+            print(w_is_driver_licence," - ",w_image_text)
 
-        if "DRIVING LICENCE" in w_image_text or "DRIVER RESTRICTIONS" in w_image_text or len(w_image_text) < 2:
+        if w_is_driver_licence or len(w_image_text) < 2:
             driver_licence.read_driver_licence_barcode(p_image_name = image_item,
-                                                       p_image_text = w_image_text, 
-                                                       p_debug      = w_debug)    
+                                                        p_image_text = w_image_text)    
         

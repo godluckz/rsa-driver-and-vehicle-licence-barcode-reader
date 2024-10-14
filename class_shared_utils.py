@@ -1,14 +1,15 @@
 import json
+from program_keys import barcode_licence_key
 
 class SharedUtils:
     def __init__(self, p_images_location: str, p_output_file: str, p_debug_on: bool = False) -> None:
         self.images_location = p_images_location
         self.output_file     = p_output_file        
         self.debug_on        = p_debug_on
-        self.barcode_licence_key = "DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ=="
-        self.driver_data_names   = ["LICENCE_CODE","SURNAME","INITIALS","ID_ISSUE_COUNTRY_CODE","LICENCE_ISSUE_COUNTRY_CODE","RESTRICTIONS","LICENCE_NUMBER","CIVIL_REG_CODE"]
+        self.barcode_licence_key = barcode_licence_key
         self.vehicle_data_names  = ["BARCODE_NAME","KEY1","KEY2","DISC_NR","LICENCE_NO","REGISTER_NO","LICENCE_NUMBER","DESCRIPTION","MAKE","MODEL","COLOR","VIN_NO","ENGINE_NO","DISC_EXPIRY_DATE"]
-    
+        self.driver_data_names   = ["LICENCE_CODE","SURNAME","INITIALS","ID_ISSUE_COUNTRY_CODE","LICENCE_ISSUE_COUNTRY_CODE","RESTRICTIONS","LICENCE_NUMBER","CIVIL_REG_CODE"]        
+        self.driver_licence_keywords = ['PrDP CATEGORIES', 'P Passengers', 'G Goods', 'D Dangérous goods','DRIVING LICENCE','DRIVER RESTRICTIONS','RESTRICTION']    
 
         self.v1 = [0x01, 0xe1, 0x02, 0x45]
         self.v2 = [0x01, 0x9b, 0x09, 0x45]

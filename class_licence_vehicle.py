@@ -5,7 +5,6 @@ import json
 class LicenceVehicle:
     def __init__(self, p_images_location: str, p_debug_on: bool = False) -> None:
         self.images_location = p_images_location
-        self.debug_on        = p_debug_on
         self.image_full_path = None
         self.output_file      = "output/vehicle_licence.json"
         self.shared_utils     = SharedUtils(self.images_location,self.output_file,p_debug_on)
@@ -51,7 +50,7 @@ class LicenceVehicle:
     
 
 
-    def read_vehicle_licence_barcode(self, p_image_name: str, p_image_text: str, p_debug : bool = False) -> None:
+    def read_vehicle_licence_barcode(self, p_image_name: str, p_image_text: str) -> None:
         """read licence barcode
 
         Args:
@@ -60,8 +59,6 @@ class LicenceVehicle:
         Returns: 
             None
         """    
-        self.debug_on = p_debug
-
 
         self.image_full_path = f"{self.images_location}/{p_image_name}"
         self.shared_utils._debug_log("=================VEHICLE LICENCE=================")
@@ -69,7 +66,7 @@ class LicenceVehicle:
         self.shared_utils._debug_log("++++++++++++++++++++++")
         self.shared_utils._debug_log(f"text: {p_image_text}")    
         
-        BarcodeReader.init_license(self.shared_utils.barcode_licence_key) # logic from (credits to) : https://www.dynamsoft.com/codepool/decode-south-africa-driving-license.html
+        BarcodeReader.init_license(self.shared_utils.barcode_licence_key)
         reader = BarcodeReader()    
         w_results = reader.decode_file(self.image_full_path)
         w_licence_details = None
@@ -87,9 +84,11 @@ class LicenceVehicle:
         
 
 if __name__ == "__main__":
+    
+    #UNIT TEST ONLY.. to run full program run main.py    
+    
     w_debug      = False    
-    W_IMAGES_DIR = "images"      
-  
+    W_IMAGES_DIR = "images"        
 
     from os import listdir, remove
     from class_image_processing import ImageProcessing
@@ -100,11 +99,15 @@ if __name__ == "__main__":
     w_images = listdir(W_IMAGES_DIR)    
     for image_item in w_images:          
         w_image_full_path : str = f"{W_IMAGES_DIR}/{image_item}"
-        w_image_text = image_process.get_image_text(p_image_with_path = w_image_full_path)
-        if "DRIVING LICENCE" in w_image_text or "DRIVER RESTRICTIONS" in w_image_text or len(w_image_text) < 2:
+        w_is_driver_licence, w_image_text = image_process.get_image_text(p_image_with_path = w_image_full_path, 
+                                                                         p_licence_keywords=vehicle_licence.shared_utils.driver_licence_keywords)
+        if vehicle_licence.shared_utils.debug_on:
+            print(w_is_driver_licence," - ",w_image_text)
+
+
+        if w_is_driver_licence or len(w_image_text) < 2:
             continue
         else:
             vehicle_licence.read_vehicle_licence_barcode(p_image_name = image_item,
-                                                         p_image_text = w_image_text, 
-                                                         p_debug      = w_debug)
+                                                         p_image_text = w_image_text)
                 
